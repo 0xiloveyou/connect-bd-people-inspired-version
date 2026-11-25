@@ -1,0 +1,99 @@
+// Probashé / প্রবাসে — diaspora map of Bangladesh
+// SQLite is used for zero-config local development. For production, change
+// the provider in datasource to "postgresql" and set DATABASE_URL accordingly.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model District {
+  id          Int            @id @default(autoincrement())
+  slug        String         @unique
+  name        String
+  nameBn      String
+  division    String
+  divisionBn  String
+  lat         Float
+  lng         Float
+  tagline     String
+  taglineBn   String
+  highlights  String         @default("")
+  story       String
+  storyBn     String
+  users       User[]
+  quiz        QuizQuestion[]
+  photos      Photo[]
+  createdAt   DateTime       @default(now())
+}
+
+model City {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  name        String
+  nameBn      String
+  country     String
+  countryBn   String
+  countryCode String
+  lat         Float
+  lng         Float
+  users       User[]
+  createdAt   DateTime @default(now())
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  name         String
+  email        String    @unique
+  passwordHash String?
+  googleId     String?   @unique
+  photoUrl     String?
+  avatarColor  String    @default("#0b6e4f")
+  profession   String?
+  bio          String?
+  cityId       Int?
+  city         City?     @relation(fields: [cityId], references: [id])
+  districtId   Int?
+  district     District? @relation(fields: [districtId], references: [id])
+  yearsAbroad  Int       @default(0)
+  isPublic     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model QuizQuestion {
+  id          Int       @id @default(autoincrement())
+  districtId  Int?
+  district    District? @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  question    String
+  option0     String
+  option1     String
+  option2     String
+  option3     String
+  answer      Int
+  explanation String?
+}
+
+model Photo {
+  id        Int       @id @default(autoincrement())
+  districtId Int?
+  district  District? @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  title     String
+  titleBn   String
+  credit    String
+  creditUrl String?
+  art       String    @default("river")
+  createdAt DateTime  @default(now())
+}
+
+model Idea {
+  id        Int      @id @default(autoincrement())
+  name      String?
+  email     String?
+  message   String
+  createdAt DateTime @default(now())
+}
